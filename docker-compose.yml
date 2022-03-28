@@ -2,12 +2,23 @@ version: "3"
 
 services:
   app:
-    user: root:root
     build:
-      context: .
+      context: "."
+    command: "sh -c \"python manage.py runserver 0.0.0.8600\"\n"
     ports:
       - "8600:8600"
+    user: "root:root"
     volumes:
-      - ./app:/app
-    command: >
-        sh -c "python manage.py runserver 0.0.0.8600"
+      - "./app:/app"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=app
+      - DB_USER=postgres
+      - DB_PASS=supersecretpassword
+
+  db:
+    environment:
+      - POSTGRES_DB=app
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=supersecretpassword
+    image: "postgres:10-alpine"
