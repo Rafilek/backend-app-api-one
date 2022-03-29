@@ -4,9 +4,11 @@ services:
   app:
     build:
       context: "."
-    command: "sh -c \"python manage.py runserver 0.0.0.8600\"\n"
+    command: "sh -c \"python manage.py wait_for_db &&
+                      python manage.py migrate &&
+                      python manage.py runserver 0.0.0.0:8000\"\n"
     ports:
-      - "8600:8600"
+      - "8000:8000"
     user: "root:root"
     volumes:
       - "./app:/app"
@@ -15,6 +17,8 @@ services:
       - DB_NAME=app
       - DB_USER=postgres
       - DB_PASS=supersecretpassword
+    depends_on:
+      - db
 
   db:
     environment:
