@@ -4,11 +4,13 @@ from django.db import connections
 from django.db.utils import OperationalError
 from django.core.management.base import BaseCommand
 
+
 class Command(BaseCommand):
     """ Django command to pause execution until database is available """
 
     def handle(self, *args, **options):
-        self.stdout.write("...[+] Hey we are close to do our API. We are also waiting for the database. [+]")
+        self.stdout.write(
+            "...[+] We are also waiting for the database. [+]")
         db_conn = None
         while not db_conn:
             try:
