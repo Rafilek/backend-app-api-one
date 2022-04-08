@@ -49,7 +49,7 @@ class ModelTests(TestCase):
         """Test the tag string representation"""
         tag = models.Tag.objects.create(
             user=sample_user(),
-            name='Vegan'
+            name='Not Vegan'
         )
 
         self.assertEqual(str(tag), tag.name)
