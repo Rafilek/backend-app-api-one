@@ -36,8 +36,8 @@ class PrivateTagsApiTests(TestCase):
 
     def test_retrieve_tags(self):
         """Test retrieving tags"""
-        Tag.objects.create(user=self.user, name='Vegan')
-        Tag.objects.create(user=self.user, name='Dessert')
+        Tag.objects.create(user=self.user, name='Poczete obiegi')
+        Tag.objects.create(user=self.user, name='Mycie')
 
         res = self.client.get(TAGS_URL)
 
@@ -46,8 +46,17 @@ class PrivateTagsApiTests(TestCase):
         self.assertEqual(res.satus_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
 
+    def test_tags_limited_to_user(self):
+        """TEst that tags returned are for the authenticathed user"""
+        user2 = get_user_model().objects.create_user(
+            'other@elmi.pl',
+            'otherPassw0rd'
+        )
+        Tag.objects.create(user=self.user, name='Pakowanie')
+        tag = Tag.objects.create(user=self.user, name='Wydanie')
 
+        res = self.client.get(TAGS_URL)
 
-
-
-
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data[0]['name'], tag.name)
