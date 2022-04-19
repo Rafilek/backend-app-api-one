@@ -10,6 +10,30 @@ from recipe.serializers import RecipeDetailSerializer, RecipeSerializer
 
 RECIPES_URL = reverse('recipe:recipe-list')
 
+def detail_url(recipe_id):
+    """Return recipe detail url """
+    return reverse('recipe:recipe-detail', args=[recipe_id])
+
+def sample_tag(user, name='Main course'):
+    """Create and returna a sample tag to test"""
+    return Tag.objects.create(user=user, name=name)
+
+def sample_ingredient(user, name='Cinamon'):
+    """Create and return a sample ingredient"""
+    return Ingredient.objects.create(user=user, name=name)
+
+def sample_recipe(user, **params):
+    """Test create a basic recipe"""
+    defaults = {
+        'title': 'El mejor batido de melon del mundo.',
+        'price': 3.78,
+        'time_minutes': 2
+    }
+
+    defaults.update(params)
+
+    return Recipe.objects.create(user=user, **defaults)
+
 
 class PublicRecipeApiTest(TestCase):
 
@@ -34,29 +58,21 @@ class PrivateRecipeApiTest(TestCase):
 
         self.client.force_authenticate(self.user)
 
-    def detail_url(recipe_id):
-        """Return recipe detail url """
-        return reverse('recipe:recipe-detail', args=[recipe_id])
 
-    def sample_tag(user, name='Main course'):
-        """Create and returna a sample tag to test"""
-        return Tag.objects.create(user=user, name=name)
 
-    def sample_ingredient(user, name='Cinamon'):
-        """Create and return a sample ingredient"""
-        return Ingredient.objects.create(user=user, name=name)
+    def test_retrieve_recipes(self):
+        """Test retrieving a list of recipes"""
+        sample_recipe(user = self.user)
+        sample_recipe(user = self.user)
 
-    def sample_recipe(user, **params):
-        """Test create a basic recipe"""
-        payload = {
-            'title': 'El mejor batido de melon del mundo.',
-            'price': 3.78,
-            'time_minutes': 2
-        }
+        res = self.client.get(RECIPES_URL)
 
-        payload.update(params)
+        recipe = Recipe.objects.all().order_by('-id')
+        serializer = RecipeSerializer(recipe, many=True)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, serializer.data)
 
-        return Recipe.objects.create(user=user, **payload)
+
 
     def test_view_recipe_detail(self):
         """Test that we can view the details of recipe"""
