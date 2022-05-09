@@ -67,6 +67,7 @@ class Ingredient(models.Model):
 
 class Recipe(models.Model):
     """Recipe Object"""
+    #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
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE
